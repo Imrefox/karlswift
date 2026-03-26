@@ -1,0 +1,52 @@
+workflows:
+  swift-ios:
+    name: Swift iOS
+    max_build_duration: 120
+    instance_type: mac_mini_m4
+    integrations:
+      app_store_connect: codemagic_karl_asc
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: io.codemagic.karlswift  # 👈 Your Bundle ID
+      vars:
+        XCODE_PROJECT: "karlswift.xcodeproj"        # 👈 Your .xcodeproj filename
+        XCODE_SCHEME: "karlswift"                   # 👈 Your scheme name
+        APP_ID: 6761194928                          # 👈 Your App Store Connect App ID
+      xcode: latest
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'                           # 👈 Change to your branch name
+    scripts:
+      - name: Set up code signing settings on Xcode project
+        script: |
+          xcode-project use-profiles --warn-only
+
+      - name: Increment build number
+        script: |
+          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-testflight-build-number "$APP_ID")
+          agvtool new-version -all $(($LATEST_BUILD_NUMBER + 1))
+
+      - name: Build ipa for distribution
+        script: |
+          xcode-project build-ipa \
+            --project "$CM_BUILD_DIR/$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+
+    publishing:
+      email:
+        recipients:
+          - karl@codemagic.io                       # 👈 Your email
+        notify:
+          success: true
+          failure: true
+      app_store_connect:
+        auth: integration
+        #submit_to_testflight: true
