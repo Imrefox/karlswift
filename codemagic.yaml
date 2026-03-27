@@ -26,6 +26,7 @@ workflows:
 
       - name: Increment build number
         script: |
+          cd karlswift
           LATEST_BUILD_NUMBER=$(app-store-connect get-latest-testflight-build-number "$APP_ID")
           agvtool new-version -all $(($LATEST_BUILD_NUMBER + 1))
 
