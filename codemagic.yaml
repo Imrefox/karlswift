@@ -10,7 +10,7 @@ workflows:
         distribution_type: app_store
         bundle_identifier: io.codemagic.karlswift  # 👈 Your Bundle ID
       vars:
-        XCODE_PROJECT: "karlswift.xcodeproj"        # 👈 Your .xcodeproj filename
+        XCODE_PROJECT: "karlswift/karlswift.xcodeproj"        # 👈 Your .xcodeproj filename
         XCODE_SCHEME: "karlswift"                   # 👈 Your scheme name
         APP_ID: 6761194928                          # 👈 Your App Store Connect App ID
       xcode: latest
